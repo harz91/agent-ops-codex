@@ -5,15 +5,15 @@ A phase-by-phase TODO list to build the full AgentOps Hub system. Each task is f
 ## Phase 1 (Weeks 1-2): Platform Core
 ### Auth & Identity
 - [ ] Configure Supabase Auth (email/password + OAuth providers).
-- [ ] Implement signup flow to create org + first user.
-- [ ] Implement login, logout, refresh token flows.
+- [x] Implement signup flow to create org + first user.
+- [x] Implement login, logout, refresh token flows.
 - [ ] Add password reset flow.
 - [ ] Add 2FA-ready structure (TOTP/SMS optional).
 
 ### Org & Tenant Management
 - [ ] Create org profile CRUD (name, logo, plan, region).
 - [ ] Implement org invitations (email-based).
-- [ ] Build org members CRUD with roles.
+- [x] Build org members CRUD with roles.
 
 ### RBAC & Permissions
 - [ ] Define roles (Owner/Admin, Team Lead, Member, Viewer).
@@ -21,21 +21,21 @@ A phase-by-phase TODO list to build the full AgentOps Hub system. Each task is f
 - [ ] Add permission mapping for agents, policies, approvals, settings.
 
 ### API Keys & Gateway
-- [ ] Create API key issuance and revocation endpoints.
+- [x] Create API key issuance and revocation endpoints.
 - [ ] Store API key hashes and scopes in Postgres.
-- [ ] Implement API key auth middleware.
-- [ ] Add request validation and versioned routes (`/api/v1`).
+- [x] Implement API key auth middleware.
+- [x] Add request validation and versioned routes (`/api/v1`).
 - [ ] Add rate limiting per org/key (Redis-backed).
 
 ### Logging, Error Handling, Observability
-- [ ] Wire Winston structured logs.
+- [x] Wire Winston structured logs.
 - [ ] Configure Sentry error tracking.
 - [ ] Add API error standardization (error codes + response schema).
 
 ### Frontend Core UI
-- [ ] Build login and signup pages.
-- [ ] Build settings pages: org profile, members, API keys.
-- [ ] Add baseline app shell (nav, layout, theming).
+- [x] Build login and signup pages.
+- [x] Build settings pages: org profile, members, API keys.
+- [x] Add baseline app shell (nav, layout, theming).
 
 ### Infrastructure & Tooling
 - [ ] Dockerize backend and frontend.
@@ -45,31 +45,31 @@ A phase-by-phase TODO list to build the full AgentOps Hub system. Each task is f
 ## Phase 2 (Weeks 2-3): Agent Registry + Run Ingestion
 ### Agent Registry
 - [ ] Implement agents table and RLS policies.
-- [ ] Build CRUD endpoints for agents.
+- [x] Build CRUD endpoints for agents.
 - [ ] Add agent tags and environment flags (prod/staging/test).
 - [ ] Build agent list and detail views.
 
 ### Run & Event Ingestion
-- [ ] Implement ingestion schema validation.
-- [ ] Add deduplication logic for run IDs.
+- [x] Implement ingestion schema validation.
+- [x] Add deduplication logic for run IDs.
 - [ ] Create BullMQ queue for ingestion jobs.
 - [ ] Store runs and events in Postgres.
 - [ ] Update Redis cache for agent stats.
 
 ### Cost Enrichment
-- [ ] Store model pricing configuration.
-- [ ] Compute token usage and cost per run.
-- [ ] Persist cost metrics to runs table.
+- [x] Store model pricing configuration.
+- [x] Compute token usage and cost per run.
+- [x] Persist cost metrics to runs table.
 
 ### Ingestion API & Run Browsing
-- [ ] Expose `/api/v1/ingest/run` endpoint.
-- [ ] Implement runs list and run detail APIs.
+- [x] Expose `/api/v1/ingest/run` endpoint.
+- [x] Implement runs list and run detail APIs.
 - [ ] Build run history UI and run detail timeline.
 
 ## Phase 3 (Weeks 3-4): Observability & Dashboards
 ### Dashboard KPIs
 - [ ] Build org-level KPI summary API.
-- [ ] Add dashboard cards for runs, errors, cost.
+- [x] Add dashboard cards for runs, errors, cost.
 - [ ] Add charts for runs over time and error rate.
 
 ### Agent Analytics
