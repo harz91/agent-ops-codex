@@ -1,0 +1,43 @@
+CREATE TABLE IF NOT EXISTS organizations (
+  id UUID PRIMARY KEY,
+  name TEXT NOT NULL,
+  plan TEXT NOT NULL,
+  created_by UUID NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  full_name TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS organization_members (
+  id UUID PRIMARY KEY,
+  org_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  role TEXT NOT NULL,
+  teams TEXT[] DEFAULT '{}',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS api_keys (
+  id UUID PRIMARY KEY,
+  org_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  key_hash TEXT NOT NULL,
+  scope TEXT[] DEFAULT '{}',
+  created_by UUID NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id UUID PRIMARY KEY,
+  org_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
+  actor_type TEXT NOT NULL,
+  action_type TEXT NOT NULL,
+  entity_type TEXT NOT NULL,
+  changes JSONB NOT NULL,
+  timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
