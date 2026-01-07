@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import { store } from "../store/inMemoryStore.js";
+import { requireOrgContext, type AuthedRequest } from "../middleware/auth.js";
 
 const router = Router();
 
@@ -11,8 +12,8 @@ const memberSchema = z.object({
   teams: z.array(z.string()).default([]),
 });
 
-router.post("/", (req, res) => {
-  const parsed = memberSchema.safeParse(req.body);
+router.post("/", requireOrgContext, (req: AuthedRequest, res) => {
+  const parsed = memberSchema.safeParse({ ...req.body, orgId: req.auth?.orgId });
   if (!parsed.success) {
     return res.status(400).json({ error: "Invalid request", details: parsed.error });
   }
@@ -21,13 +22,8 @@ router.post("/", (req, res) => {
   return res.status(201).json({ data: member, message: "Member invited" });
 });
 
-router.get("/", (req, res) => {
-  const orgId = req.headers["x-org-id"] as string | undefined;
-  if (!orgId) {
-    return res.status(400).json({ error: "Missing x-org-id header" });
-  }
-
-  const members = store.listMembers(orgId);
+router.get("/", requireOrgContext, (req: AuthedRequest, res) => {
+  const members = store.listMembers(req.auth?.orgId ?? "");
   return res.json({ data: members, message: "Organization members" });
 });
 

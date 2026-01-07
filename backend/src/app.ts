@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
 import routes from "./routes/index.js";
-import { apiRateLimit } from "./middleware/rateLimit.js";
+import { apiRateLimit, ingestRateLimit } from "./middleware/rateLimit.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 dotenv.config();
@@ -19,6 +19,7 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
+app.use("/api/v1/ingest", ingestRateLimit);
 app.use("/api/v1", routes);
 
 app.use(errorHandler);

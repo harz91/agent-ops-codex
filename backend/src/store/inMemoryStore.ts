@@ -31,10 +31,53 @@ export type ApiKey = {
   createdAt: string;
 };
 
+export type Agent = {
+  id: string;
+  orgId: string;
+  name: string;
+  type: string;
+  provider: string;
+  status: "active" | "paused" | "archived";
+  tags: string[];
+  environment: "prod" | "staging" | "dev";
+  config: Record<string, unknown>;
+};
+
+export type Run = {
+  id: string;
+  orgId: string;
+  agentId: string;
+  status: "queued" | "running" | "completed" | "failed";
+  inputData: Record<string, unknown>;
+  outputData: Record<string, unknown> | null;
+  startTime: string;
+  endTime: string | null;
+  latencyMs: number | null;
+  tokenUsage: {
+    promptTokens: number;
+    completionTokens: number;
+    model: string;
+  } | null;
+  costUsd: number | null;
+  externalReference: string | null;
+};
+
+export type Event = {
+  id: string;
+  runId: string;
+  orgId: string;
+  eventType: string;
+  timestamp: string;
+  payload: Record<string, unknown>;
+};
+
 const organizations = new Map<string, Organization>();
 const users = new Map<string, User>();
 const orgMembers = new Map<string, OrganizationMember>();
 const apiKeys = new Map<string, ApiKey>();
+const agents = new Map<string, Agent>();
+const runs = new Map<string, Run>();
+const events = new Map<string, Event[]>();
 
 export const store = {
   createOrganization: (data: Omit<Organization, "id">) => {
@@ -84,4 +127,37 @@ export const store = {
   listApiKeys: (orgId: string) =>
     Array.from(apiKeys.values()).filter((key) => key.orgId === orgId),
   revokeApiKey: (id: string) => apiKeys.delete(id),
+  findApiKeyByKey: (key: string) =>
+    Array.from(apiKeys.values()).find((apiKey) => apiKey.key === key) ?? null,
+  createAgent: (data: Omit<Agent, "id">) => {
+    const id = randomUUID();
+    const agent = { id, ...data };
+    agents.set(id, agent);
+    return agent;
+  },
+  listAgents: (orgId: string) =>
+    Array.from(agents.values()).filter((agent) => agent.orgId === orgId),
+  getAgent: (id: string) => agents.get(id) ?? null,
+  updateAgent: (id: string, updates: Partial<Omit<Agent, "id" | "orgId">>) => {
+    const agent = agents.get(id);
+    if (!agent) return null;
+    const next = { ...agent, ...updates };
+    agents.set(id, next);
+    return next;
+  },
+  createRun: (data: Run) => {
+    runs.set(data.id, data);
+    return data;
+  },
+  getRun: (id: string) => runs.get(id) ?? null,
+  listRuns: (orgId: string) =>
+    Array.from(runs.values()).filter((run) => run.orgId === orgId),
+  addEvents: (runId: string, orgId: string, newEvents: Omit<Event, "id">[]) => {
+    const existing = events.get(runId) ?? [];
+    const created = newEvents.map((event) => ({ id: randomUUID(), ...event }));
+    events.set(runId, [...existing, ...created]);
+    return created.filter((event) => event.orgId === orgId);
+  },
+  listEventsByRun: (runId: string, orgId: string) =>
+    (events.get(runId) ?? []).filter((event) => event.orgId === orgId),
 };

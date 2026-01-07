@@ -1,16 +1,12 @@
 import { Router } from "express";
 import { z } from "zod";
 import { store } from "../store/inMemoryStore.js";
+import { requireOrgContext, type AuthedRequest } from "../middleware/auth.js";
 
 const router = Router();
 
-router.get("/profile", (req, res) => {
-  const orgId = req.headers["x-org-id"] as string | undefined;
-  if (!orgId) {
-    return res.status(400).json({ error: "Missing x-org-id header" });
-  }
-
-  const org = store.getOrganization(orgId);
+router.get("/profile", requireOrgContext, (req: AuthedRequest, res) => {
+  const org = store.getOrganization(req.auth?.orgId ?? "");
   if (!org) {
     return res.status(404).json({ error: "Organization not found" });
   }
@@ -23,18 +19,13 @@ const updateSchema = z.object({
   plan: z.string().min(2).optional(),
 });
 
-router.patch("/profile", (req, res) => {
-  const orgId = req.headers["x-org-id"] as string | undefined;
-  if (!orgId) {
-    return res.status(400).json({ error: "Missing x-org-id header" });
-  }
-
+router.patch("/profile", requireOrgContext, (req: AuthedRequest, res) => {
   const parsed = updateSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: "Invalid request", details: parsed.error });
   }
 
-  const updated = store.updateOrganization(orgId, parsed.data);
+  const updated = store.updateOrganization(req.auth?.orgId ?? "", parsed.data);
   if (!updated) {
     return res.status(404).json({ error: "Organization not found" });
   }

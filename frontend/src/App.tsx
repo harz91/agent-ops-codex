@@ -5,9 +5,13 @@ import Signup from "./pages/auth/Signup";
 import SettingsOrg from "./pages/settings/SettingsOrg";
 import SettingsMembers from "./pages/settings/SettingsMembers";
 import SettingsApiKeys from "./pages/settings/SettingsApiKeys";
+import AgentsList from "./pages/agents/AgentsList";
+import RunsList from "./pages/runs/RunsList";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard" },
+  { to: "/agents", label: "Agents" },
+  { to: "/runs", label: "Runs" },
   { to: "/settings/org", label: "Org Settings" },
   { to: "/settings/members", label: "Members" },
   { to: "/settings/api-keys", label: "API Keys" },
@@ -43,6 +47,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<DashboardHome />} />
           <Route path="/dashboard" element={<DashboardHome />} />
+          <Route path="/agents" element={<AgentsList />} />
+          <Route path="/runs" element={<RunsList />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/settings/org" element={<SettingsOrg />} />

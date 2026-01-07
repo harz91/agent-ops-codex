@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 import { store } from "../store/inMemoryStore.js";
+import { requireOrgContext, type AuthedRequest } from "../middleware/auth.js";
 
 const router = Router();
 
@@ -12,8 +13,8 @@ const apiKeySchema = z.object({
   createdBy: z.string().uuid(),
 });
 
-router.post("/", (req, res) => {
-  const parsed = apiKeySchema.safeParse(req.body);
+router.post("/", requireOrgContext, (req: AuthedRequest, res) => {
+  const parsed = apiKeySchema.safeParse({ ...req.body, orgId: req.auth?.orgId });
   if (!parsed.success) {
     return res.status(400).json({ error: "Invalid request", details: parsed.error });
   }
@@ -26,13 +27,8 @@ router.post("/", (req, res) => {
   });
 });
 
-router.get("/", (req, res) => {
-  const orgId = req.headers["x-org-id"] as string | undefined;
-  if (!orgId) {
-    return res.status(400).json({ error: "Missing x-org-id header" });
-  }
-
-  const keys = store.listApiKeys(orgId);
+router.get("/", requireOrgContext, (req: AuthedRequest, res) => {
+  const keys = store.listApiKeys(req.auth?.orgId ?? "");
   return res.json({ data: keys, message: "API keys" });
 });
 
