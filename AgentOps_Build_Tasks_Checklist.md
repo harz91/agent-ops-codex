@@ -7,7 +7,7 @@ A phase-by-phase TODO list to build the full AgentOps Hub system. Each task is f
 - [ ] Configure Supabase Auth (email/password + OAuth providers).
 - [x] Implement signup flow to create org + first user.
 - [x] Implement login, logout, refresh token flows.
-- [ ] Add password reset flow.
+- [x] Add password reset flow.
 - [ ] Add 2FA-ready structure (TOTP/SMS optional).
 
 ### Org & Tenant Management
