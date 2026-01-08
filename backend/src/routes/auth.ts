@@ -50,6 +50,15 @@ const loginSchema = z.object({
   email: z.string().email(),
 });
 
+const passwordResetRequestSchema = z.object({
+  email: z.string().email(),
+});
+
+const passwordResetConfirmSchema = z.object({
+  token: z.string().min(8),
+  newPassword: z.string().min(8),
+});
+
 router.post("/login", (req, res) => {
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -79,6 +88,43 @@ router.post("/refresh-token", (_req, res) => {
   res.json({
     data: { token: "mock-jwt-token", refreshToken: "mock-refresh-token" },
     message: "Token refreshed",
+  });
+});
+
+router.post("/password-reset/request", (req, res) => {
+  const parsed = passwordResetRequestSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Invalid request", details: parsed.error });
+  }
+
+  const reset = store.createPasswordReset(parsed.data.email);
+
+  return res.json({
+    data: reset
+      ? { resetToken: reset.token, expiresAt: reset.expiresAt }
+      : null,
+    message: "If an account exists, a reset email has been sent.",
+  });
+});
+
+router.post("/password-reset/confirm", (req, res) => {
+  const parsed = passwordResetConfirmSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Invalid request", details: parsed.error });
+  }
+
+  const result = store.consumePasswordReset(parsed.data.token, parsed.data.newPassword);
+  if ("error" in result) {
+    const message =
+      result.error === "expired"
+        ? "Reset token expired. Request a new one."
+        : "Reset token invalid.";
+    return res.status(400).json({ error: message });
+  }
+
+  return res.json({
+    data: { userId: result.user.id },
+    message: "Password reset successful.",
   });
 });
 

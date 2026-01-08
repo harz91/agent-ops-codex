@@ -2,6 +2,7 @@ import { NavLink, Route, Routes } from "react-router-dom";
 import DashboardHome from "./pages/DashboardHome";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
+import PasswordReset from "./pages/auth/PasswordReset";
 import SettingsOrg from "./pages/settings/SettingsOrg";
 import SettingsMembers from "./pages/settings/SettingsMembers";
 import SettingsApiKeys from "./pages/settings/SettingsApiKeys";
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="/runs" element={<RunsList />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/password-reset" element={<PasswordReset />} />
           <Route path="/settings/org" element={<SettingsOrg />} />
           <Route path="/settings/members" element={<SettingsMembers />} />
           <Route path="/settings/api-keys" element={<SettingsApiKeys />} />

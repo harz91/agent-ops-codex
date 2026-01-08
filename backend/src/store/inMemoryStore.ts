@@ -11,6 +11,7 @@ export type User = {
   id: string;
   email: string;
   fullName: string;
+  password?: string;
 };
 
 export type OrganizationMember = {
@@ -71,6 +72,14 @@ export type Event = {
   payload: Record<string, unknown>;
 };
 
+export type PasswordReset = {
+  token: string;
+  userId: string;
+  email: string;
+  expiresAt: string;
+  createdAt: string;
+};
+
 const organizations = new Map<string, Organization>();
 const users = new Map<string, User>();
 const orgMembers = new Map<string, OrganizationMember>();
@@ -78,6 +87,7 @@ const apiKeys = new Map<string, ApiKey>();
 const agents = new Map<string, Agent>();
 const runs = new Map<string, Run>();
 const events = new Map<string, Event[]>();
+const passwordResets = new Map<string, PasswordReset>();
 
 export const store = {
   createOrganization: (data: Omit<Organization, "id">) => {
@@ -102,6 +112,13 @@ export const store = {
   },
   getUserByEmail: (email: string) =>
     Array.from(users.values()).find((user) => user.email === email) ?? null,
+  updateUserPassword: (id: string, password: string) => {
+    const user = users.get(id);
+    if (!user) return null;
+    const next = { ...user, password };
+    users.set(id, next);
+    return next;
+  },
   addMember: (data: Omit<OrganizationMember, "id">) => {
     const id = randomUUID();
     const member = { id, ...data };
@@ -160,4 +177,38 @@ export const store = {
   },
   listEventsByRun: (runId: string, orgId: string) =>
     (events.get(runId) ?? []).filter((event) => event.orgId === orgId),
+  createPasswordReset: (email: string) => {
+    const user = Array.from(users.values()).find((entry) => entry.email === email);
+    if (!user) return null;
+    const token = randomUUID();
+    const now = Date.now();
+    const reset: PasswordReset = {
+      token,
+      userId: user.id,
+      email: user.email,
+      createdAt: new Date(now).toISOString(),
+      expiresAt: new Date(now + 1000 * 60 * 60).toISOString(),
+    };
+    passwordResets.set(token, reset);
+    return reset;
+  },
+  consumePasswordReset: (token: string, newPassword: string) => {
+    const reset = passwordResets.get(token);
+    if (!reset) {
+      return { error: "invalid" as const };
+    }
+    if (new Date(reset.expiresAt).getTime() < Date.now()) {
+      passwordResets.delete(token);
+      return { error: "expired" as const };
+    }
+    const user = users.get(reset.userId);
+    if (!user) {
+      passwordResets.delete(token);
+      return { error: "invalid" as const };
+    }
+    const updated = { ...user, password: newPassword };
+    users.set(user.id, updated);
+    passwordResets.delete(token);
+    return { user: updated };
+  },
 };
